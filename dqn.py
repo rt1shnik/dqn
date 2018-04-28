@@ -63,7 +63,8 @@ class Agent():
         target_network_weights = target_network.trainable_weights
 
         # Define target network update operation
-        self.update_target_network = [target_network_weights[i].assign(q_network_weights[i]) for i in range(len(target_network_weights))]
+        self.update_target_network = [target_network_weights[i].assign(q_network_weights[i]) for i in
+                                      range(len(target_network_weights))]
 
         # Define loss and gradient update operation
         self.a, self.y, self.loss, self.grads_update = self.build_training_op(q_network_weights)
@@ -87,7 +88,8 @@ class Agent():
 
     def build_network(self):
         model = Sequential()
-        model.add(Conv2D(32, (8, 8), strides=(4, 4), activation='relu', input_shape=(FRAME_WIDTH, FRAME_HEIGHT, STATE_LENGTH)))
+        model.add(Conv2D(32, (8, 8), strides=(4, 4), activation='relu',
+                         input_shape=(FRAME_WIDTH, FRAME_HEIGHT, STATE_LENGTH)))
         model.add(Conv2D(64, (4, 4), strides=(2, 2), activation='relu'))
         model.add(Conv2D(64, (3, 3), strides=(1, 1), activation='relu'))
         model.add(Flatten())
@@ -176,7 +178,7 @@ class Agent():
             # Write summary
             if self.t >= INITIAL_REPLAY_SIZE:
                 stats = [self.total_reward, self.total_q_max / float(self.duration),
-                        self.duration, self.total_loss / (float(self.duration) / float(TRAIN_INTERVAL))]
+                         self.duration, self.total_loss / (float(self.duration) / float(TRAIN_INTERVAL))]
                 for i in range(len(stats)):
                     self.sess.run(self.update_ops[i], feed_dict={
                         self.summary_placeholders[i]: float(stats[i])
@@ -191,10 +193,11 @@ class Agent():
                 mode = 'explore'
             else:
                 mode = 'exploit'
-            print('EPISODE: {0:6d} / TIMESTEP: {1:8d} / DURATION: {2:5d} / EPSILON: {3:.5f} / TOTAL_REWARD: {4:3.0f} / AVG_MAX_Q: {5:2.4f} / AVG_LOSS: {6:.5f} / MODE: {7}'.format(
-                self.episode + 1, self.t, self.duration, self.epsilon,
-                self.total_reward, self.total_q_max / float(self.duration),
-                self.total_loss / (float(self.duration) / float(TRAIN_INTERVAL)), mode))
+            print(
+                'EPISODE: {0:6d} / TIMESTEP: {1:8d} / DURATION: {2:5d} / EPSILON: {3:.5f} / TOTAL_REWARD: {4:3.0f} / AVG_MAX_Q: {5:2.4f} / AVG_LOSS: {6:.5f} / MODE: {7}'.format(
+                    self.episode + 1, self.t, self.duration, self.epsilon,
+                    self.total_reward, self.total_q_max / float(self.duration),
+                    self.total_loss / (float(self.duration) / float(TRAIN_INTERVAL)), mode))
 
             self.total_reward = 0
             self.total_q_max = 0
@@ -226,7 +229,8 @@ class Agent():
         # Convert True to 1, False to 0
         terminal_batch = np.array(terminal_batch) + 0
 
-        target_q_values_batch = self.target_q_values.eval(feed_dict={self.st: np.float32(np.array(next_state_batch) / 255.0)})
+        target_q_values_batch = self.target_q_values.eval(
+            feed_dict={self.st: np.float32(np.array(next_state_batch) / 255.0)})
         y_batch = reward_batch + (1 - terminal_batch) * GAMMA * np.max(target_q_values_batch, axis=1)
 
         loss, _ = self.sess.run([self.loss, self.grads_update], feed_dict={
