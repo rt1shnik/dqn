@@ -11,7 +11,7 @@ from skimage.transform import resize
 from keras.models import Sequential
 from keras.layers import Conv2D, Flatten, Dense
 
-ENV_NAME = 'Breakout-v0'  # Environment name
+ENV_NAME = 'Breakout-v4'  # Environment name
 FRAME_WIDTH = 84  # Resized frame width
 FRAME_HEIGHT = 84  # Resized frame height
 NUM_EPISODES = 12000  # Number of episodes the agent plays
