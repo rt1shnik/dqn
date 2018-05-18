@@ -125,8 +125,7 @@ class Agent():
         processed_observation = np.maximum(observation, last_observation)
         processed_observation = np.uint8(resize(rgb2gray(processed_observation), (FRAME_WIDTH, FRAME_HEIGHT)) * 255)
         state = [processed_observation for _ in range(STATE_LENGTH)]
-        state = np.stack(state, axis=0)  # (4, 84, 84)
-        state = np.rollaxis(np.rollaxis(state, 1, 0), 2, 1)
+        state = np.stack(state, axis=2)  # (84, 84, 4)
         return state
 
     def get_action(self, state):
