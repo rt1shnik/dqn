@@ -277,10 +277,10 @@ class Agent():
 
 def preprocess(observation, last_observation):
     processed_observation = np.maximum(observation, last_observation)
-    processed_observation = np.uint8(resize(rgb2gray(processed_observation), (FRAME_WIDTH, FRAME_HEIGHT)) * 255)
-
-    state = np.reshape(processed_observation, (1, FRAME_WIDTH, FRAME_HEIGHT))
-    state = np.rollaxis(np.rollaxis(state, 1, 0), 2, 1)
+    gray_image = rgb2gray(processed_observation)
+    resize_image = resize(gray_image, (FRAME_WIDTH, FRAME_HEIGHT))
+    processed_observation = np.uint8(resize_image * 255)
+    state = np.reshape(processed_observation, (FRAME_WIDTH, FRAME_HEIGHT, 1))
     return state
 
 
