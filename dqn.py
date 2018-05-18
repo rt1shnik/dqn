@@ -193,10 +193,10 @@ class Agent():
             else:
                 mode = 'exploit'
             print(
-                'EPISODE: {0:6d} / TIMESTEP: {1:8d} / DURATION: {2:5d} / EPSILON: {3:.5f} / TOTAL_REWARD: {4:3.0f} / AVG_MAX_Q: {5:2.4f} / AVG_LOSS: {6:.5f} / MODE: {7}'.format(
+                'EPISODE: {0:6d} / TIMESTEP: {1:8d} / DURATION: {2:5d} / EPSILON: {3:.5f} / TOTAL_REWARD: {4:3.0f} / AVG_MAX_Q: {5:2.4f} / AVG_LOSS: {6:.5f} / MODE: {7} / MEMORY_SIZE: {8:6d}'.format(
                     self.episode + 1, self.t, self.duration, self.epsilon,
                     self.total_reward, self.total_q_max / float(self.duration),
-                    self.total_loss / (float(self.duration) / float(TRAIN_INTERVAL)), mode))
+                    self.total_loss / (float(self.duration) / float(TRAIN_INTERVAL)), mode, len(self.replay_memory)))
 
             self.total_reward = 0
             self.total_q_max = 0
