@@ -5,6 +5,7 @@ import gym
 import random
 import numpy as np
 import tensorflow as tf
+from ring_buf import RingBuf
 from collections import deque
 from skimage.color import rgb2gray
 from skimage.transform import resize
@@ -52,7 +53,7 @@ class Agent():
         self.episode = 0
 
         # Create replay memory
-        self.replay_memory = deque()
+        self.replay_memory = RingBuf(NUM_REPLAY_MEMORY)
 
         # Create q network
         self.s, self.q_values, q_network = self.build_network()
@@ -153,8 +154,6 @@ class Agent():
 
         # Store transition in replay memory
         self.replay_memory.append((state, action, reward, next_state, terminal))
-        if len(self.replay_memory) > NUM_REPLAY_MEMORY:
-            self.replay_memory.popleft()
 
         if self.t >= INITIAL_REPLAY_SIZE:
             # Train network
@@ -218,8 +217,9 @@ class Agent():
         y_batch = []
 
         # Sample random minibatch of transition from replay memory
-        minibatch = random.sample(self.replay_memory, BATCH_SIZE)
-        for data in minibatch:
+        minibatch_indexes = random.sample(range(len(self.replay_memory)), BATCH_SIZE)
+        for index in minibatch_indexes:
+            data = self.replay_memory[index]
             state_batch.append(data[0])
             action_batch.append(data[1])
             reward_batch.append(data[2])
