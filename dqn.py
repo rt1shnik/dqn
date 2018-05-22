@@ -124,13 +124,13 @@ class Agent():
         processed_observation = np.maximum(observation, last_observation)
         processed_observation = np.uint8(resize(rgb2gray(processed_observation), (FRAME_WIDTH, FRAME_HEIGHT)) * 255)
         state = [processed_observation for _ in range(STATE_LENGTH)]
-        state = np.stack(state, axis=2)  # (84, 84, 4)
         return state
 
     def get_action(self, state):
         if self.epsilon >= random.random() or self.t < INITIAL_REPLAY_SIZE:
             action = random.randrange(self.num_actions)
         else:
+            state = np.stack(state, axis=2)
             action = np.argmax(self.q_values.eval(feed_dict={self.s: [np.float32(state / 255.0)]}))
 
         # Anneal epsilon linearly over time
@@ -140,12 +140,9 @@ class Agent():
         return action
 
     def run(self, state, action, reward, terminal, observation):
-        """
-        print state.shape   # (84, 84, 4)
-        print observation.shape  # (84, 84, 1)
-        """
-        # append observation in state and update to keep the STATE_LENGTH at 4
-        next_state = np.append(state[:, :, 1:], observation, axis=2)
+        next_state = list(state)
+        next_state.pop(0)
+        next_state.append(observation)
 
         # Clip all positive rewards at 1 and all negative rewards at -1, leaving 0 rewards unchanged
         reward = np.clip(reward, -1, 1)
@@ -168,6 +165,7 @@ class Agent():
                 print('Successfully saved: ' + save_path)
 
         self.total_reward += reward
+        state = np.stack(state, axis=2)
         state_float32 = np.float32(state / 255.0)
         q_eval = self.q_values.eval(feed_dict={self.s: [state_float32]})
         self.total_q_max += np.max(q_eval)
@@ -220,10 +218,10 @@ class Agent():
         minibatch_indexes = random.sample(range(len(self.replay_memory)), BATCH_SIZE)
         for index in minibatch_indexes:
             data = self.replay_memory[index]
-            state_batch.append(data[0])
+            state_batch.append(np.stack(data[0], axis=2))
             action_batch.append(data[1])
             reward_batch.append(data[2])
-            next_state_batch.append(data[3])
+            next_state_batch.append(np.stack(data[3], axis=2))
             terminal_batch.append(data[4])
 
         # Convert True to 1, False to 0
@@ -280,8 +278,7 @@ def preprocess(observation, last_observation):
     gray_image = rgb2gray(processed_observation)
     resize_image = resize(gray_image, (FRAME_WIDTH, FRAME_HEIGHT))
     processed_observation = np.uint8(resize_image * 255)
-    state = np.reshape(processed_observation, (FRAME_WIDTH, FRAME_HEIGHT, 1))
-    return state
+    return processed_observation
 
 
 def main():
@@ -312,13 +309,15 @@ def main():
                 last_observation = observation
                 observation, _, _, _ = env.step(0)  # Do nothing
             state = agent.get_initial_state(observation, last_observation)
+            state = np.stack(state, axis=2)
             while not terminal:
                 last_observation = observation
                 action = agent.get_action_at_test(state)
                 observation, _, terminal, _ = env.step(action)
                 env.render()
                 processed_observation = preprocess(observation, last_observation)
-                state = np.append(state[1:, :, :], processed_observation, axis=0)
+                processed_observation = np.reshape(processed_observation, (FRAME_WIDTH, FRAME_HEIGHT, 1))
+                state = np.append(state[:, :, 1:], processed_observation, axis=2)
         # env.monitor.close()
 
 
