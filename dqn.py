@@ -168,7 +168,9 @@ class Agent():
                 print('Successfully saved: ' + save_path)
 
         self.total_reward += reward
-        self.total_q_max += np.max(self.q_values.eval(feed_dict={self.s: [np.float32(state / 255.0)]}))
+        state_float32 = np.float32(state / 255.0)
+        q_eval = self.q_values.eval(feed_dict={self.s: [state_float32]})
+        self.total_q_max += np.max(q_eval)
         self.duration += 1
 
         if terminal:
