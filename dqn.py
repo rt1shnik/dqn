@@ -89,12 +89,11 @@ class Agent():
 
     def build_network(self):
         model = Sequential()
-        model.add(Conv2D(32, (8, 8), strides=(4, 4), activation='relu',
+        model.add(Conv2D(16, (8, 8), strides=(4, 4), activation='relu',
                          input_shape=(FRAME_WIDTH, FRAME_HEIGHT, STATE_LENGTH)))
-        model.add(Conv2D(64, (4, 4), strides=(2, 2), activation='relu'))
-        model.add(Conv2D(64, (3, 3), strides=(1, 1), activation='relu'))
+        model.add(Conv2D(32, (4, 4), strides=(2, 2), activation='relu'))
         model.add(Flatten())
-        model.add(Dense(512, activation='relu'))
+        model.add(Dense(256, activation='relu'))
         model.add(Dense(self.num_actions))
 
         s = tf.placeholder(tf.float32, [None, FRAME_WIDTH, FRAME_HEIGHT, STATE_LENGTH])
